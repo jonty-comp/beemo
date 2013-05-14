@@ -15,7 +15,7 @@ class AudiowallPage(GridLayout):
         super(AudiowallPage, self).__init__(**kwargs)
         globals._available = True
         self.register_event_type('on_add_button')
-        for fn in glob('/home/jonty/src/beemo/testaudio/*.flac'):
+        for fn in glob('/home/jonty/src/beemo/testaudio/*'):
             self._fn = fn
             self.dispatch('on_add_button')
 
