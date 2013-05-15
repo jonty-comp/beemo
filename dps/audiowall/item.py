@@ -33,7 +33,7 @@ class AudiowallItem(Button):
             self.audio.source = self.filename
             self.audio.bind(on_loaded=self.on_loaded)
         else:
-            Clock.schedule_once(self._load, 0.25)
+            Clock.schedule_once(self._load, 0.1)
 
     def _unload(self, *largs):
         self.filename = ''
