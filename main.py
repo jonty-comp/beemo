@@ -10,7 +10,7 @@ import globals
 
 class TestApp(App):
     def build(self):
-        self.root = root = AudiowallPage(spacing=5, cols=3)
+        self.root = root = AudiowallPage()
         return root
 
 if __name__ == '__main__':

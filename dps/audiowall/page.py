@@ -13,7 +13,9 @@ class AudiowallPage(GridLayout):
 
     def __init__(self, **kwargs):
         super(AudiowallPage, self).__init__(**kwargs)
+        self.cols = 3
         globals._available = True
+        self.buttons = []
         self.register_event_type('on_add_button')
         for fn in glob('/home/jonty/src/beemo/testaudio/*'):
             self._fn = fn
@@ -23,3 +25,4 @@ class AudiowallPage(GridLayout):
         btn = AudiowallButton()
         btn.filename = self._fn
         self.add_widget(btn)
+        self.buttons.append(btn)
