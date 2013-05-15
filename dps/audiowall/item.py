@@ -1,7 +1,11 @@
+'''
+Audiowall Page. Made up of AudiowallButtons.
+============================================
+'''
+
 from kivy.clock import Clock
 from kivy.uix.button import Button
 from kivy.properties import StringProperty, ObjectProperty, ListProperty
-from os.path import basename
 
 from dps.audioplayer.audio import Audio
 
@@ -44,7 +48,6 @@ class AudiowallItem(Button):
         self.audio.unbind(on_stop=self.on_stop)
         
     def on_loaded(self, *args):
-        self.title=basename(self.filename[:-4]).replace('_', ' ') 
         self.text = self.title+"\n"+self.time_format(self.audio.length)
         self.background_color = self.background
         self.audio.bind(on_play=self.on_play)
