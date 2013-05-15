@@ -33,7 +33,7 @@ class AudiowallButton(Button):
             self.audio.source = self.filename
             self.audio.bind(on_loaded=self.on_loaded)
         else:
-            Clock.schedule_interval(self._load, 0.25)
+            Clock.schedule_once(self._load, 0.25)
 
     def _unload(self, *largs):
         self.filename = ''
@@ -49,7 +49,6 @@ class AudiowallButton(Button):
         self.background_color = self.background
         self.audio.bind(on_play=self.on_play)
         self.audio.bind(on_stop=self.on_stop)
-        Clock.unschedule(self._load)
         globals._available = True
 
     def on_press(self):
