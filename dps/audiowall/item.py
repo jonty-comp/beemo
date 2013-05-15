@@ -7,7 +7,7 @@ from dps.audioplayer.audio import Audio
 
 import globals
 
-class AudiowallButton(Button):
+class AudiowallItem(Button):
 
     filename = StringProperty(None)
     audio = ObjectProperty(None)
@@ -17,7 +17,7 @@ class AudiowallButton(Button):
     
     def __init__(self, **kwargs):
         self.audio = Audio()
-        super(AudiowallButton, self).__init__(**kwargs)
+        super(AudiowallItem, self).__init__(**kwargs)
 
     def update_position(self, *largs):
         remaining = self.time_format(self.audio.length - self.audio.position)

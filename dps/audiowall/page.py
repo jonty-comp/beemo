@@ -4,7 +4,7 @@ Audiowall Page. Made up of AudiowallButtons.
 '''
 
 from kivy.uix.gridlayout import GridLayout
-from dps.audiowall.button import AudiowallButton
+from dps.audiowall.item import AudiowallItem
 
 import globals
 
@@ -15,11 +15,11 @@ class AudiowallPage(GridLayout):
         self.cols = 3
         globals._available = True
         self.buttons = []
-        self.register_event_type('on_add_button')
+        self.register_event_type('on_add_item')
         for i in range(0,12,1):
-            self.dispatch('on_add_button')
+            self.dispatch('on_add_item')
 
-    def on_add_button(self, *largs):
-        btn = AudiowallButton()
+    def on_add_item(self, *largs):
+        btn = AudiowallItem()
         self.add_widget(btn)
         self.buttons.append(btn)
