@@ -1,6 +1,6 @@
 '''
-Audiowall Page. Made up of AudiowallButtons.
-============================================
+Audiowall Item. Plays audio when you press it.
+==============================================
 '''
 
 from kivy.clock import Clock
