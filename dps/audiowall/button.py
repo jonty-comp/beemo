@@ -12,6 +12,7 @@ class AudiowallButton(Button):
     filename = StringProperty(None)
     audio = ObjectProperty(None)
     title = StringProperty(None)
+    disabled_bg = ListProperty([1,1,1,0])
     background = ListProperty([1,1,1,1])
     
     def __init__(self, **kwargs):
@@ -23,30 +24,40 @@ class AudiowallButton(Button):
         self.text = "PLAYING\n"+str(remaining)
 
     def on_filename(self, instance, fn):
-        self._load()
+        if(self.filename != ''):
+            self._load()
 
     def _load(self, *largs):
         if(globals._available):
             globals._available = False
-            self.audio.filetype = 'flac'
             self.audio.source = self.filename
             self.audio.bind(on_loaded=self.on_loaded)
         else:
             Clock.schedule_interval(self._load, 0.25)
+
+    def _unload(self, *largs):
+        self.filename = ''
+        self.audio.unload()
+        self.background_color = self.disabled_bg
+        self.text = ''
+        self.audio.unbind(on_play=self.on_play)
+        self.audio.unbind(on_stop=self.on_stop)
         
     def on_loaded(self, *args):
         self.title=basename(self.filename[:-4]).replace('_', ' ') 
         self.text = self.title+"\n"+self.time_format(self.audio.length)
+        self.background_color = self.background
         self.audio.bind(on_play=self.on_play)
         self.audio.bind(on_stop=self.on_stop)
         Clock.unschedule(self._load)
         globals._available = True
 
     def on_press(self):
-        if self.audio.state != 'stop':
-            self.audio.stop()
-        else:
-            self.audio.play()
+        if(self.filename != ''):
+            if self.audio.state == 'play':
+                self.audio.stop()
+            else:
+                self.audio.play()
         
     def on_stop(self, *args):
         Clock.unschedule(self.update_position)

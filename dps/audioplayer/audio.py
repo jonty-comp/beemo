@@ -14,20 +14,17 @@ try:
 except:
     raise
 
-import os
 import sys
 from kivy.logger import Logger
 from kivy.event import EventDispatcher
-from kivy.utils import platform
-from kivy.resources import resource_find
-from kivy.properties import StringProperty, NumericProperty, OptionProperty, AliasProperty
+from kivy.properties import StringProperty, OptionProperty
 
 from kivy.support import install_gobject_iteration
 install_gobject_iteration()
 
 class Audio(EventDispatcher):
     source = StringProperty(None)
-    state = OptionProperty('stop', options=('stop', 'play', 'pause'))
+    state = OptionProperty('stop', options=('stop', 'play', 'pause', 'null'))
 
     def _get_filename(self):
         return self.source
@@ -69,6 +66,7 @@ class Audio(EventDispatcher):
         elif t == gst.MESSAGE_STATE_CHANGED:
             old, new, pending = message.parse_state_changed()
             #Logger.debug('Audio state change: %s -> %s (%s)' % (old, new, pending))
+
             if(self._loading):
                 if(new == gst.STATE_READY):
                     self.dispatch('on_loaded')
@@ -129,10 +127,12 @@ class Audio(EventDispatcher):
 
         self._pipeline.set_property('uri', filepath)
         self._pipeline.set_state(gst.STATE_READY)
+        self.state = 'stop'
 
     def unload(self):
         self.stop()
         self._pipeline.set_state(gst.STATE_NULL)
+        self.state = 'null'
 
     def play(self):
         if not self._pipeline:
