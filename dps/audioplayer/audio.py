@@ -112,18 +112,9 @@ class Audio(EventDispatcher):
     def load(self):
         self.unload()
         self._loading = True;
-        fn = self.filename
-        if fn is None:
+        filepath = self.filename
+        if filepath is None:
             return
-
-        slash = ''
-        if sys.platform in ('win32', 'cygwin'):
-            slash = '/'
-
-        if fn[0] == '/':
-            filepath = 'file://' + slash + fn
-        else:
-            filepath = 'file://' + slash + os.path.join(os.getcwd(), fn)
 
         self._pipeline.set_property('uri', filepath)
         self._pipeline.set_state(gst.STATE_READY)
