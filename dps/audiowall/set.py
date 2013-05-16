@@ -39,15 +39,11 @@ class AudiowallSet(BoxLayout):
         self.next.bind(on_press=self.on_next)
         self._buttons.add_widget(self.next)
 
-        self.register_event_type('on_add_page')
-        for i in range(0,3,1):
-            self.title = 'Screen %i' % i
-            self.dispatch('on_add_page')
-
-    def on_add_page(self, *largs):
+    def add_page(self, id, name):      
         screen = Screen()
-        screen.name = self.title
+        screen.name = id
         page = AudiowallPage()
+        page.name = name
         screen.add_widget(page)
         self._sm.add_widget(screen)
         self.pages.append(page)
