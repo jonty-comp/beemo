@@ -4,17 +4,21 @@ Test Audiowall application.
 '''
 
 from kivy.app import App
+from kivy.config import Config
 from kivy.uix.boxlayout import BoxLayout
 from dps.audiowall.set import AudiowallSet
 
-from glob import glob
-from os.path import basename
 import json
 
 import globals
 
 class TestApp(App):
     def build(self):
+        Config.set('graphics', 'width', '1024')
+        Config.set('graphics', 'height', '768')
+        json_file = open('audiowall.json','r')
+        json_object = json.load(json_file)
+
         self.root = BoxLayout(orientation='horizontal')
         self.leftbox = BoxLayout(size_hint=(.55,1))
         self.root.add_widget(self.leftbox)
@@ -24,22 +28,28 @@ class TestApp(App):
 
         self.primary_wall = AudiowallSet()
         i = 0
-        for i in range(0,3,1):
-            j = 0
-            for fn in glob('/home/jonty/src/beemo/testaudio/*'):
-                self.primary_wall.pages[i].buttons[j].title = basename(fn[:-4]).replace('_', ' ')
-                self.primary_wall.pages[i].buttons[j].filename = fn
-                j += 1
+        for page in json_object:
+            name = page.get('name')
+            id = page.get('id')
+            items = page.get('items')
+            self.primary_wall.add_page(id,name)
+            if items:
+                for item in items:
+                    fn = 'http://dps-dev.radio.warwick.ac.uk/audio/%s/%s.flac' % (item.get('audio')[:1], item.get('audio'))
+                    background = [int(item.get('background')[0])/float(255),int(item.get('background')[1])/float(255),int(item.get('background')[2])/float(255),1]
+                    self.primary_wall.pages[i].buttons[int(item.get('item'))].title = item.get('text')
+                    self.primary_wall.pages[i].buttons[int(item.get('item'))].background = background
+                    self.primary_wall.pages[i].buttons[int(item.get('item'))].filename = fn
             i += 1
 
         self.rightbox.add_widget(self.primary_wall)
 
         self.secondary_wall = AudiowallSet()
         i = 0
-        for fn in glob('/home/jonty/src/beemo/testaudio/*'):
-            self.secondary_wall.pages[0].buttons[i].title = basename(fn[:-4]).replace('_', ' ')
-            self.secondary_wall.pages[0].buttons[i].filename = fn
-            i += 1
+        #for fn in glob('/home/jonty/src/beemo/testaudio/*'):
+        #    self.secondary_wall.pages[0].buttons[i].title = basename(fn[:-4]).replace('_', ' ')
+        #    self.secondary_wall.pages[0].buttons[i].filename = fn
+        #    i += 1
             
         self.rightbox.add_widget(self.secondary_wall)
         return self.root
