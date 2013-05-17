@@ -16,6 +16,7 @@ class AudiowallSet(BoxLayout):
     def __init__(self, **kwargs):
         super(AudiowallSet, self).__init__(**kwargs)
         self.pages = []
+        self.active_page = 1
 
         self._container = BoxLayout(orientation='vertical')
         self.add_widget(self._container)
@@ -32,7 +33,7 @@ class AudiowallSet(BoxLayout):
         self.previous.bind(on_press=self.on_previous)
         self._buttons.add_widget(self.previous)
 
-        self.pages_label = Label(text='Page x of y')
+        self.pages_label = Label()
         self._buttons.add_widget(self.pages_label)
 
         self.next = Button(text='>>')
@@ -47,11 +48,20 @@ class AudiowallSet(BoxLayout):
         screen.add_widget(page)
         self._sm.add_widget(screen)
         self.pages.append(page)
+        self.pages_label.text = 'Page %i of %i' % (self.active_page, len(self.pages))
 
     def on_previous(self, *largs):
         self._sm.transition.direction = 'right'
         self._sm.current = self._sm.previous()
+        self.active_page -= 1
+        if(self.active_page == 0):
+            self.active_page = len(self.pages)
+        self.pages_label.text = 'Page %i of %i' % (self.active_page, len(self.pages))
 
     def on_next(self, *largs):
         self._sm.transition.direction = 'left'
         self._sm.current = self._sm.next()
+        self.active_page += 1
+        if(self.active_page > len(self.pages)):
+            self.active_page = 1
+        self.pages_label.text = 'Page %i of %i' % (self.active_page, len(self.pages))
