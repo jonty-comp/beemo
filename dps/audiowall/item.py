@@ -7,7 +7,7 @@ from kivy.clock import Clock
 from kivy.uix.button import Button
 from kivy.properties import StringProperty, ObjectProperty, ListProperty
 
-from dps.audioplayer.audio import Audio
+from dps.audiobackend.audio import Audio
 
 import globals
 

@@ -7,6 +7,7 @@ from kivy.app import App
 from kivy.config import Config
 from kivy.uix.boxlayout import BoxLayout
 from dps.audiowall.set import AudiowallSet
+from dps.audioplayer.player import AudioPlayer
 
 import json
 
