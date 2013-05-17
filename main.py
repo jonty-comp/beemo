@@ -21,8 +21,15 @@ class TestApp(App):
         json_object = json.load(json_file)
 
         self.root = BoxLayout(orientation='horizontal')
-        self.leftbox = BoxLayout(size_hint=(.55,1))
+        self.leftbox = BoxLayout(size_hint=(.55,1), orientation='vertical', spacing=10)
         self.root.add_widget(self.leftbox)
+
+        self.player_1 = AudioPlayer()
+        self.leftbox.add_widget(self.player_1)
+        self.player_2 = AudioPlayer()
+        self.leftbox.add_widget(self.player_2)
+        self.player_3 = AudioPlayer()
+        self.leftbox.add_widget(self.player_3)
 
         self.rightbox = BoxLayout(orientation='vertical', size_hint=(.45,1))
         self.root.add_widget(self.rightbox)
