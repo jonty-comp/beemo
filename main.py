@@ -35,7 +35,7 @@ class TestApp(App):
             self.primary_wall.add_page(id,name)
             if items:
                 for item in items:
-                    fn = 'http://dps-dev.radio.warwick.ac.uk/audio/%s/%s.flac' % (item.get('audio')[:1], item.get('audio'))
+                    fn = 'http://dps-dev.radio.warwick.ac.uk/audio/index.php?md5=%s&token=3b976023f313bc143af6c16cb44c09' % (item.get('audio'))
                     background = [int(item.get('background')[0])/float(255),int(item.get('background')[1])/float(255),int(item.get('background')[2])/float(255),1]
                     self.primary_wall.pages[i].buttons[int(item.get('item'))].title = item.get('text')
                     self.primary_wall.pages[i].buttons[int(item.get('item'))].background = background
