@@ -37,13 +37,16 @@ class AudioPlayer(BoxLayout):
         self.topbox.inner.col1 = BoxLayout(orientation='vertical')
         self.topbox.inner.add_widget(self.topbox.inner.col1)
 
-        self.topbox.inner.col1.title = Label(text='Title: ')
+        self.topbox.inner.col1.title = Label(text='Title: ', font_size='20sp', size_hint=(None, 1))
+        self.topbox.inner.col1.title.bind(texture_size=self.topbox.inner.col1.title.setter('size'))
         self.topbox.inner.col1.add_widget(self.topbox.inner.col1.title)
 
-        self.topbox.inner.col1.artist = Label(text='Artist: ')
+        self.topbox.inner.col1.artist = Label(text='Artist: ', font_size='20sp', size_hint=(None, 1))
+        self.topbox.inner.col1.artist.bind(texture_size=self.topbox.inner.col1.artist.setter('size'))
         self.topbox.inner.col1.add_widget(self.topbox.inner.col1.artist)
 
-        self.topbox.inner.col1.time = Label(text='00:00:00', font_size='40sp')
+        self.topbox.inner.col1.time = Label(text='00:00:00', font_size='40sp', size_hint=(None, 1))
+        self.topbox.inner.col1.time.bind(texture_size=self.topbox.inner.col1.time.setter('size'))
         self.topbox.inner.col1.add_widget(self.topbox.inner.col1.time)
 
         self.topbox.inner.col2 = BoxLayout(orientation='vertical', size_hint=(0.4,1))
