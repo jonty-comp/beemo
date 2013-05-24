@@ -5,7 +5,7 @@ Audiowall Item. Plays audio when you press it.
 
 from kivy.clock import Clock
 from kivy.uix.button import Button
-from kivy.properties import StringProperty, ObjectProperty, ListProperty
+from kivy.properties import StringProperty, ObjectProperty, ListProperty, NumericProperty
 
 from dps.audiobackend.audio import Audio
 
@@ -13,6 +13,7 @@ import globals
 
 class AudiowallItem(Button):
 
+    id = NumericProperty(None)
     filename = StringProperty(None)
     audio = ObjectProperty(None)
     title = StringProperty(None)
@@ -20,7 +21,7 @@ class AudiowallItem(Button):
     background = ListProperty([1,1,1,1])
     
     def __init__(self, **kwargs):
-        self.audio = Audio()
+        self.audio = Audio(output='alsa',device='pulse')
         super(AudiowallItem, self).__init__(**kwargs)
 
     def update_position(self, *largs):
