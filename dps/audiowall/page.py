@@ -38,5 +38,4 @@ class AudiowallPage(BoxLayout):
         self.buttons.append(btn)
 
     def on_name(self, instance, name):
-        print self.name
         self.label.text = self.name
