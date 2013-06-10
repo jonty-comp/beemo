@@ -149,9 +149,11 @@ class AudioPlayer(BoxLayout):
 
     def playpause(self, *args):
         if(self.audio.state != 'play'):
-            self.audio.play()
+			self.bottombox.playpause.text = "Pause"
+			self.audio.play()
         else:
-            self.audio.pause()
+			self.bottombox.playpause.text = "Play"
+			self.audio.pause()
 
     def stop(self, *args):
         if(self.audio.state != 'stop'):
