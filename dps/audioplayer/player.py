@@ -9,7 +9,8 @@ from kivy.uix.gridlayout import GridLayout
 from kivy.uix.label import Label
 from kivy.uix.button import Button
 from kivy.uix.slider import Slider
-from kivy.properties import StringProperty, ObjectProperty, ListProperty
+from kivy.uix.progressbar import ProgressBar
+from kivy.properties import StringProperty, ObjectProperty, OptionProperty, NumericProperty
 
 from dps.audiobackend.audio import Audio
 
@@ -21,9 +22,12 @@ class AudioPlayer(BoxLayout):
     audio = ObjectProperty(None)
     title = StringProperty(None)
     artist = StringProperty(None)
+    time_mode = OptionProperty('remain', options=('elapsed','remain'))
+    timer = StringProperty(None)
+    _position = NumericProperty(0)
 
     def __init__(self, **kwargs):
-        self.audio = Audio()
+        self.audio = Audio(output='alsa',device='pulse')
         super(AudioPlayer, self).__init__(**kwargs)
 
         self.orientation = 'vertical'
@@ -67,11 +71,19 @@ class AudioPlayer(BoxLayout):
         self.topbox.inner.col3.load = Button(text='Load')
         self.topbox.inner.col3.add_widget(self.topbox.inner.col3.load)
 
-        self.middlebox = BoxLayout(size_hint=(1,0.6))
+        self.middlebox = BoxLayout(orientation='vertical',size_hint=(1,0.6))
         self.add_widget(self.middlebox)
 
         self.middlebox.progressbar = Slider()
         self.middlebox.add_widget(self.middlebox.progressbar)
+
+        self.middlebox.level_l = ProgressBar()
+        self.middlebox.level_l.max = 36
+        self.middlebox.add_widget(self.middlebox.level_l)
+
+        self.middlebox.level_r = ProgressBar()
+        self.middlebox.level_r.max = 36
+        self.middlebox.add_widget(self.middlebox.level_r)
 
         self.bottombox = BoxLayout(size_hint=(1,1))
         self.add_widget(self.bottombox)
@@ -84,10 +96,15 @@ class AudioPlayer(BoxLayout):
 
         self.bottombox.spacer = Button(size_hint=(0.6,1), background_color=(0,0,0,0))
         self.bottombox.add_widget(self.bottombox.spacer)
-
+        
     def update_position(self, *largs):
-        elapsed = self.time_format(self.audio.position)
-        remaining = self.time_format(self.audio.length - self.audio.position)
+        if(self.time_mode == 'elapsed'):
+            self.timer = self.time_format(self.audio.position)
+        else:
+            self.timer = self.time_format(self.audio.length - self.audio.position)
+        self.topbox.inner.col1.time.text = self.timer
+        self.middlebox.progressbar.value = self.audio.position
+
 
     def on_filename(self, instance, fn):
         if(self.filename != ''):
@@ -101,34 +118,51 @@ class AudioPlayer(BoxLayout):
         self.filename = ''
         self.audio.unload()
         self.text = ''
-        self.audio.unbind(on_play=self.on_play)
-        self.audio.unbind(on_stop=self.on_stop)
+        self.bottombox.playpause.unbind(on_press=self.playpause)
+        self.bottombox.stop.unbind(on_press=self.stop)
         
     def on_loaded(self, *args):
+        Clock.schedule_once(self.update_position)
+        self.middlebox.progressbar.max = self.audio.length
+        self.topbox.inner.col1.title.text = "Title: %s" % self.title
+        self.topbox.inner.col1.artist.text = "Artist: %s" % self.artist
+        self.bottombox.playpause.bind(on_press=self.playpause)
+        self.bottombox.stop.bind(on_press=self.stop)
         self.audio.bind(on_play=self.on_play)
+        self.audio.bind(on_pause=self.on_pause)
         self.audio.bind(on_stop=self.on_stop)
+        self.audio.bind(on_level=self.on_level)
 
-    def on_press(self):
-        if(self.filename != ''):
-            if self.audio.state == 'play':
-                self.audio.stop()
-            else:
-                self.audio.play()
-        
     def on_stop(self, *args):
+        Clock.unschedule(self.update_position)
+        Clock.schedule_once(self.update_position)
+
+    def on_pause(self, *args):
         Clock.unschedule(self.update_position)
         
     def on_play(self, *args):
         Clock.schedule_interval(self.update_position, 1/30.)
+
+    def on_level(self, *args):
+        self.middlebox.level_l.value = self.audio.level_left
+        self.middlebox.level_r.value = self.audio.level_right
+
+    def playpause(self, *args):
+        if(self.audio.state != 'play'):
+            self.audio.play()
+        else:
+            self.audio.pause()
+
+    def stop(self, *args):
+        if(self.audio.state != 'stop'):
+            self.audio.stop()
 
     def time_format(self, time):
         time *= 100
         sec, ms = divmod(time, 100)
         min, sec = divmod(sec, 60)
         hr, min = divmod(min, 60)
-        time = "%02i.%02i" % (sec, ms)
-        if(min > 0):
-            time = ("%02im " % min) + time
+        time = "%02i:%02i:%02i" % (min, sec, ms)
         if(hr > 0):
-            time = ("%02ih " % hr) + time
+            time = ("%02i." % hr) + time
         return time
