@@ -72,6 +72,7 @@ class Audio(EventDispatcher):
         self._qaudiosink = gst.element_factory_make('queue')
         self._qaudiosink.set_property('silent', True)
         self._qaudiosink.set_property('max-size-buffers', 1)
+        self._qaudiosink.set_property('leaky', True)
 
         if self.output == 'alsa':
             self._audiosink = gst.element_factory_make("alsasink")
@@ -82,6 +83,7 @@ class Audio(EventDispatcher):
         else:  
             Logger.error('GStreamer: Invalid sound output / device: %s / %s' % (self.output, self.device))
         self._audiosink.set_state(gst.STATE_NULL)
+        self._audiosink.set_locked_state(True)
         
         self._pipeline.add(self._decodebin, self._audioconvert, self._replaygain, self._audioresample, self._level, self._tee, self._fakesink, self._qaudiosink, self._audiosink)
 
@@ -128,7 +130,8 @@ class Audio(EventDispatcher):
                         self._loading = False
         elif t == gst.MESSAGE_STATE_CHANGED:
             old, new, pending = message.parse_state_changed()
-            #Logger.debug('Audio state change: %s: %s -> %s (%s)' % (s, old, new, pending))
+            if (s == 'alsasink0'):
+                Logger.debug('Audio state change: %s: %s -> %s (%s)' % (s, old, new, pending))
         elif t == gst.MESSAGE_ELEMENT:
             self.level_left = 36 - (message.structure['peak'][0] * -1)
             self.level_right = 36 - (message.structure['peak'][1] * -1)
@@ -192,8 +195,11 @@ class Audio(EventDispatcher):
     def play(self):
         if not self._pipeline:
             return
+    
+        self._audiosink.set_state(gst.STATE_PLAYING)
 
         if not self._audiosink.get_pad('sink').is_linked():
+            self._qaudiosink.set_property('leaky', False)
             self._qaudiosink.link(self._audiosink)
         
         self._pipeline.set_state(gst.STATE_PLAYING)
@@ -206,18 +212,21 @@ class Audio(EventDispatcher):
         self._pipeline.set_state(gst.STATE_READY)
 
         if self._audiosink.get_pad('sink').is_linked():
+            self._qaudiosink.set_property('leaky', True)
             self._qaudiosink.unlink(self._audiosink)
-            self._audiosink.set_state(gst.STATE_NULL)
 
         self._pipeline.set_state(gst.STATE_PAUSED)
         self._pipeline.seek_simple(gst.FORMAT_TIME, gst.SEEK_FLAG_FLUSH, 0)
 
+        self._audiosink.set_state(gst.STATE_NULL)
+        
         self.state = 'stop'
         self.dispatch('on_stop')
         
     def pause(self):
         if not self._pipeline:
             return
+        self._audiosink.set_state(gst.STATE_PAUSED)
         self._pipeline.set_state(gst.STATE_PAUSED)
         self.state = 'pause'
         self.dispatch('on_pause')
