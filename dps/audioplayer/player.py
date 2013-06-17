@@ -14,6 +14,7 @@ from kivy.properties import StringProperty, ObjectProperty, OptionProperty, Nume
 
 from dps.audiobackend.audio import Audio
 
+import json
 import globals
 
 class AudioPlayer(BoxLayout):
@@ -59,8 +60,9 @@ class AudioPlayer(BoxLayout):
         self.topbox.inner.col2.spacer = Label(text='')
         self.topbox.inner.col2.add_widget(self.topbox.inner.col2.spacer)
 
-        self.topbox.inner.col2.time_mode = Button(text='ELAPSED', halign='center')
+        self.topbox.inner.col2.time_mode = Button(text='REMAIN', halign='center')
         self.topbox.inner.col2.add_widget(self.topbox.inner.col2.time_mode)
+        self.topbox.inner.col2.time_mode.bind(on_press=self.timemode)
 
         self.topbox.inner.col3 = BoxLayout(orientation='vertical', size_hint=(0.7,1))
         self.topbox.inner.add_widget(self.topbox.inner.col3)
@@ -70,6 +72,7 @@ class AudioPlayer(BoxLayout):
 
         self.topbox.inner.col3.load = Button(text='Load')
         self.topbox.inner.col3.add_widget(self.topbox.inner.col3.load)
+        self.topbox.inner.col3.load.bind(on_press=self.loadnext)
 
         self.middlebox = BoxLayout(orientation='vertical',size_hint=(1,0.6))
         self.add_widget(self.middlebox)
@@ -132,16 +135,21 @@ class AudioPlayer(BoxLayout):
         self.audio.bind(on_pause=self.on_pause)
         self.audio.bind(on_stop=self.on_stop)
         self.audio.bind(on_level=self.on_level)
+        self.bottombox.playpause.text = "Play"
 
     def on_stop(self, *args):
         Clock.unschedule(self.update_position)
         Clock.schedule_once(self.update_position)
+        self.bottombox.playpause.text = "Play"
+        self.update_position
 
     def on_pause(self, *args):
         Clock.unschedule(self.update_position)
+        self.bottombox.playpause.text = "Play"
         
     def on_play(self, *args):
         Clock.schedule_interval(self.update_position, 1/30.)
+        self.bottombox.playpause.text = "Pause"
 
     def on_level(self, *args):
         self.middlebox.level_l.value = self.audio.level_left
@@ -149,13 +157,34 @@ class AudioPlayer(BoxLayout):
 
     def playpause(self, *args):
         if(self.audio.state != 'play'):
-            self.audio.play()
+			self.audio.play()
         else:
-            self.audio.pause()
+			self.audio.pause()
 
     def stop(self, *args):
         if(self.audio.state != 'stop'):
             self.audio.stop()
+
+    def timemode(self, *args):
+        if(self.time_mode == 'elapsed'):
+            self.time_mode = 'remain'
+            self.topbox.inner.col2.time_mode.text = "REMAIN"
+        else:
+            self.time_mode = 'elapsed'
+            self.topbox.inner.col2.time_mode.text = "ELAPSED"
+        Clock.schedule_once(self.update_position)
+
+    def loadnext(self,*args):
+        if(self.audio.state != 'play'):
+            #if(self.audio.state != 'null'):
+            self._unload()
+            Clock.schedule_once(self.update_position)
+            next_song_file = open('next_song.json','r')
+            next_song_object = json.load(next_song_file)
+            fn = 'http://dps-dev.radio.warwick.ac.uk/audio/index.php?md5=%s&token=3b976023f313bc143af6c16cb44c09' % (next_song_object["md5"])
+            self.title = next_song_object['title']
+            self.artist = next_song_object['artist']
+            self.filename = fn
 
     def time_format(self, time):
         time *= 100

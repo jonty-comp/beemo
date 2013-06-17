@@ -27,9 +27,9 @@ class TestApp(App):
         self.player_1 = AudioPlayer()
         self.leftbox.add_widget(self.player_1)
 
-        self.player_1.filename = 'http://dps-dev.radio.warwick.ac.uk/audio/index.php?md5=440fe45865147fd061f246711087ada7&token=3b976023f313bc143af6c16cb44c09'
-        self.player_1.title = 'Go To Hell (For Heaven\'s Sake)'
-        self.player_1.artist = 'Bring Me The Horizon'
+        self.player_1.filename = 'http://dps-dev.radio.warwick.ac.uk/audio/index.php?md5=63816767a9689b86f5459e3553369f58&token=3b976023f313bc143af6c16cb44c09'
+        self.player_1.title = '100 HZ Test Tone'
+        self.player_1.artist = 'Generator'
 
         self.player_2 = AudioPlayer()
         self.leftbox.add_widget(self.player_2)
